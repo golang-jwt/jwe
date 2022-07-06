@@ -1,0 +1,47 @@
+name: build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - uses: reviewdog/action-staticcheck@v1
+        with:
+          github_token: ${{ secrets.github_token }}
+          reporter: github-pr-review
+          filter_mode: nofilter
+          fail_on_error: true
+
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        go: [1.16, 1.17, 1.18]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: "${{ matrix.go }}"
+      - name: Check Go code formatting
+        run: |
+          if [ "$(gofmt -s -l . | wc -l)" -gt 0 ]; then
+            gofmt -s -l .
+            echo "Please format Go code by running: go fmt ./..."
+            exit 1
+          fi
+      - name: Build
+        run: |
+          go vet ./...
+          go test -v ./...
+          go build ./...
