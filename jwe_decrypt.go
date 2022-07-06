@@ -12,7 +12,7 @@ func (jwe jwe) Decrypt(key interface{}) ([]byte, error) {
 	if len(method) == 0 {
 		return nil, errors.New("no \"enc\" header")
 	}
-	cipher, err := getCipher(EncryptionType(method))
+	cipher, err := getCipher(method)
 	if err != nil {
 		return nil, err
 	}
