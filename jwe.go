@@ -7,7 +7,7 @@ import (
 )
 
 // NewJWE creates a new JWE token.
-// The plaintext will be encrypted with the method using a cek(Content Encryption Key).
+// The plaintext will be encrypted with the method using a Content Encryption Key (cek).
 // The cek will be encrypted with the alg using the key.
 func NewJWE(alg KeyAlgorithm, key interface{}, method EncryptionType, plaintext []byte) (*jwe, error) {
 	jwe := &jwe{}
@@ -51,15 +51,25 @@ func NewJWE(alg KeyAlgorithm, key interface{}, method EncryptionType, plaintext 
 	return jwe, nil
 }
 
+// jwe internal structure represents JWE in unmarshalling format.
 type jwe struct {
+	// protected fields: alg - algorithm to encrypt a key and enc - algorithm to encrypt text.
 	protected struct {
 		Alg KeyAlgorithm   `json:"alg,omitempty"`
 		Enc EncryptionType `json:"enc,omitempty"`
 	}
+
+	// recipientKey field is the key encrypted.
 	recipientKey []byte
-	iv           []byte
-	ciphertext   []byte
-	tag          []byte
+
+	// iv field is initialization vector.
+	iv []byte
+
+	// ciphertext filed is text encrypted by the enc with the key.
+	ciphertext []byte
+
+	// tag field is authentication tag.
+	tag []byte
 }
 
 // CompactSerialize serialize JWE to compact form.

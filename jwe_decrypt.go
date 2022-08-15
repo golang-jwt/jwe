@@ -6,11 +6,17 @@ import (
 	"errors"
 )
 
+var (
+	ErrNoEncHeader = errors.New("no \"enc\" header")
+	ErrNoAlgHeader = errors.New("no \"alg\" header")
+)
+
+// Decrypt decrypts JWE ciphertext with the key
 func (jwe jwe) Decrypt(key interface{}) ([]byte, error) {
 
 	method := jwe.protected.Enc
 	if len(method) == 0 {
-		return nil, errors.New("no \"enc\" header")
+		return nil, ErrNoEncHeader
 	}
 	cipher, err := getCipher(method)
 	if err != nil {
@@ -19,7 +25,7 @@ func (jwe jwe) Decrypt(key interface{}) ([]byte, error) {
 
 	alg := jwe.protected.Alg
 	if len(alg) == 0 {
-		return nil, errors.New("no \"alg\" header")
+		return nil, ErrNoAlgHeader
 	}
 	decrypter, err := createDecrypter(key)
 	if err != nil {

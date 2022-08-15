@@ -10,6 +10,7 @@ import (
 func ParseEncrypted(input string) (*jwe, error) {
 
 	if strings.HasPrefix(input, "{") {
+		// TODO (ortyomka): Add full version support
 		return nil, errors.New("don't support full JWE")
 	}
 
